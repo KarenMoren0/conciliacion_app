@@ -1,10 +1,10 @@
 class Config:
     SECRET_KEY = 'mi_clave_super_secreta_123'
     # MYSQL
-    MYSQL_HOST = 'localhost'
+    MYSQL_HOST = 'zephyr.proxy.rlwy.net'
     MYSQL_USER = 'root'
-    MYSQL_PASSWORD = ''
-    MYSQL_DB = 'plataforma'
+    MYSQL_PASSWORD = 'slCuNIXYQlVcCBKiIROFgkkNNfiYSuuG'
+    MYSQL_DB = 'railway'
 
     # MAIL
     MAIL_SERVER = 'smtp.gmail.com'
