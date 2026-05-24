@@ -21,5 +21,6 @@ def get_connection():
         password="slCuNIXYQlVcCBKiIROFgkkNNfiYSuuG",
         database="railway",
         port=38672,
-        cursorclass=pymysql.cursors.DictCursor
+        cursorclass=pymysql.cursors.DictCursor,
+        connect_timeout=10
     )

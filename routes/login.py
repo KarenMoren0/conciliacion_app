@@ -111,8 +111,8 @@ def ruta_registro():
             return render_template('registro.html', mensaje="⚠️ Este correo ya está registrado")
 
         cur.execute(
-            "INSERT INTO usuarios (nombre, correo, password) VALUES (%s, %s, %s)",
-            (nombre, correo, password)
+        "INSERT INTO usuarios (nombre, correo, password, rol_usuario, estado) VALUES (%s, %s, %s, %s, %s)",
+        (nombre, correo, password, "usuario", "activo")
         )
         conn.commit()
         cur.close()
