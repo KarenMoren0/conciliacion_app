@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Sesiones de Usuario{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1>Sesiones de Usuario</h1>
+
+    <div class="actions">
+        <button type="button" class="btn-primary" onclick="window.location.href='{{ url_for('main.exportar_sesiones') }}'">
+    ⬇ Exportar reporte
+</button>
+    </div>
+</div>
+
+<!-- FILTROS -->
+<form class="filters" method="GET" action="{{ url_for('main.sesiones') }}">
+
+    <input type="text" name="busqueda" placeholder="Nombre o ID"
+           value="{{ request.args.get('busqueda', '') }}">
+
+    <input type="date" name="fecha"
+           value="{{ request.args.get('fecha', '') }}">
+
+    <select name="estado">
+        <option value="">Todos los estados</option>
+        <option value="activo" {% if request.args.get('estado') == 'activo' %}selected{% endif %}>Activo</option>
+        <option value="finalizado" {% if request.args.get('estado') == 'finalizado' %}selected{% endif %}>Finalizado</option>
+    </select>
+
+    <button type="submit" class="btn">Aplicar filtros</button>
+
+    <button type="button" class="btn" onclick="window.location.href='{{ url_for('main.sesiones') }}'">
+    Limpiar
+   </button>
+
+</form>
+
+<!-- KPI -->
+<div class="kpi-card">
+    <h3>Sesiones activas</h3>
+    <h1>{{ sesiones_activas }}</h1>
+
+</div>
+
+<!-- TABLA -->
+<div class="table-box">
+
+<table>
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>Fecha</th>
+            <th>IP</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for s in sesiones %}
+        <tr>
+            <td>
+                <div class="user">
+                    <div class="avatar">{{ s.iniciales }}</div>
+                    <div>
+                        <strong>{{ s.nombre }}</strong><br>
+                        <small>ID {{ s.id_usuario }}</small>
+                    </div>
+                </div>
+            </td>
+
+            <td>{{ s.fecha }}</td>
+            <td>{{ s.ip }}</td>
+
+            <td>
+            {% if s.fecha_fin is none %}
+                <span class="badge blue">Activo</span>
+            {% else %}
+                <span class="badge gray">Finalizado</span>
+            {% endif %}
+        </td>
+
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</div>
+
+{% endblock %}

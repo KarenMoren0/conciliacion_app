@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- HEADER -->
+<div class="header-info">
+    <div class="header-text">
+        <h1>Dashboard de Migración</h1>
+    </div>
+
+    <div class="calendar-box">
+        <form method="GET" id="filterForm">
+            <label>Fecha</label>
+            <input 
+                type="date" 
+                name="fecha" 
+                value="{{ request.args.get('fecha','') }}"
+                onchange="document.getElementById('filterForm').submit();"
+            >
+        </form>
+    </div>
+</div>
+
+<!-- CARDS -->
+<div class="cards">
+    <div class="card total">
+        <span>Total procesos monitoreados</span>
+        <h2>{{ cards.total }}</h2>
+    </div>
+
+    <div class="card success">
+        <span>Ejecuciones exitosas</span>
+        <h2>{{ cards.ok }}</h2>
+    </div>
+
+    <div class="card error">
+        <span>Ejecuciones con error</span>
+        <h2>{{ cards.error }}</h2>
+    </div>
+
+    <div class="card warning">
+        <span>Ejecuciones con diferencia de saldos</span>
+        <h2>{{ cards.diferencias }}</h2>
+    </div>
+</div>
+
+<!-- GRID PRINCIPAL -->
+<div class="grid">
+
+    <!-- FUENTES (IZQUIERDA GRANDE) -->
+    <div class="box fuentes">
+        <h3>Estado de Fuentes</h3>
+
+        <div class="progress">
+            <div class="progress-bar" style="width: {{ fuentes.porcentaje }}%;"></div>
+        </div>
+
+        <div class="fuentes-header">
+            <span>Fuentes listas</span>
+            <strong>{{ fuentes.listas }} / {{ fuentes.total }}</strong>
+        </div>
+
+        <div class="fuentes-mini-table">
+
+            <div class="row header">
+                <span>Fuente</span>
+                <span>Cantidad</span>
+                <span>Estado</span>
+            </div>
+
+            {% for f in fuentes.data %}
+            <div class="row">
+                <span>{{ f.nombre }}</span>
+                <span>{{ f.cantidad}}</span>
+
+                {% if f.estado == 'OK' %}
+                    <span class="status ok">OK</span>
+                {% else %}
+                    <span class="status bad">No listo</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+
+    <!-- PIE (ARRIBA DERECHA) -->
+    <div class="box center pie">
+        <h3>Estado General de Migración</h3>
+
+        <div class="chart-container">
+            <canvas id="pieChart"></canvas>
+        </div>
+
+        <p class="percent">{{ pie.porcentaje }}% completado</p>
+  </div>
+  </div>
+
+<div class="grid-graficas">
+    <!-- BAR (DEBAJO DEL PIE) -->
+    <div class="box bar">
+        <h3>Migraciones semanales</h3>
+
+
+        <div class="chart-container">
+            <canvas id="barChart"></canvas>
+        </div>
+    </div>
+
+    <!-- LINE (FULL WIDTH ABAJO) -->
+    <div class="box line">
+        <h3>Histórico de errores por día</h3>
+
+        <div class="chart-container">
+            <canvas id="lineChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<!-- DATA -->
+<script>
+    const pieData = {{ pie | tojson }};
+    const barData = {{ barras | tojson }};
+    const lineData = {{ lineas | tojson }};
+    const fuentesData = {{ fuentes | tojson }};
+    const cardsData = {{ cards | tojson }};
+</script>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+{% endblock %}

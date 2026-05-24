@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block title %}Consultas{% endblock %}
+
+{% block content %}
+
+<div class="header">
+    <h2>Consultas</h2>
+    <p>Visualice el histórico de ejecuciones de los procesos.</p>
+</div>
+
+<!-- FILTROS -->
+<form method="GET" class="filters">
+
+    <select name="proceso">
+        <option value="">Proceso</option>
+        <option value="C01">C01</option>
+        <option value="C02">C02</option>
+        <option value="C03">C03</option>
+        <option value="C04">C04</option>
+        <option value="C05">C05</option>
+        <option value="C06">C06</option>
+        <option value="C07">C07</option>
+        <option value="C08">C08</option>
+    </select>
+
+    <input type="date" name="periodo" value="{{ request.args.get('periodo', '') }}">
+
+    <!-- NUEVO: ESTADO -->
+    <select name="estado">
+    <option value="">Estado</option>
+    <option value="OK" {% if request.args.get('estado') == 'OK' %}selected{% endif %}>Exitoso</option>
+    <option value="ERROR" {% if request.args.get('estado') == 'ERROR' %}selected{% endif %}>Error</option>
+    </select>   
+
+    <!-- NUEVO: AMBIENTE -->
+    <select name="ambiente">
+        <option value="">Ambiente</option>
+        <option value="produccion">produccion</option>
+        <option value="prototipado">prototipado</option>
+    </select>
+
+    <!-- NUEVO: RESPONSABLE -->
+    <input type="text" name="responsable" placeholder="Usuario responsable">
+
+    <button type="submit" class="btn btn-red">Consultar</button>
+
+    <!-- LIMPIAR -->
+    <button type="button" class="btn btn-secondary" onclick="limpiarFiltros()">
+    Limpiar filtros
+    </button>
+
+</form>
+
+<!-- CARDS -->
+<div class="cards">
+
+    <div class="metric">
+        <p>Total ejecuciones</p>
+        <h3>{{ total }}</h3>
+    </div>
+
+    <div class="metric">
+        <p>Exitosas</p>
+        <h3 class="blue">{{ porcentaje_ok }}%</h3>
+    </div>
+
+    <div class="metric">
+        <p>Errores detectados</p>
+        <h3 class="red">{{ error }}</h3>
+    </div>
+
+    <div class="metric dark">
+        <p>Tiempo promedio</p>
+        <h3>1.4s</h3>
+    </div>
+
+</div>
+
+<!-- TABLA -->
+<div class="table-section">
+
+    <h3>Resultados de Búsqueda</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>CÓDIGO</th>
+                <th>PERIODO</th>
+                <th>FECHA EJECUCIÓN</th>
+                <th>REGISTROS</th>
+                <th>SUMA CONCILIADOS</th>
+                <th>SUMA NO CONCILIADOS</th>
+                <th>AMBIENTE</th>
+                <th>ESTADO EJECUCION</th>
+                <th>USUARIO RESPONSABLE</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for row in data %}
+        <tr>
+
+            <td><span class="badge">{{ row.codigo }}</span></td>
+            <td>{{ row.periodo }}</td>
+            <td>{{ row.fecha }}</td>
+
+            <td>{{ "{:,}".format(row.registros) }}</td>
+            <td>{{ "{:,}".format(row.conciliados) }}</td>
+            <td>{{ "{:,}".format(row.no_conciliados) }}</td>
+
+            <td>{{ row.ambiente }}</td>
+
+            <td>
+            {% if row.estado == "OK" %}
+                <span class="status ok">● EXITOSO</span>
+
+            {% else %}
+                <span 
+                    class="status bad"
+                    onclick="mostrarError('{{ row.mensaje_error | escape }}')"
+                    style="cursor:pointer;"
+                >
+                    ● ERROR
+                </span>
+            {% endif %}
+            </td>
+
+            <td>{{ row.responsable }}</td>
+
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination">
+
+    {% if page > 1 %}
+        <a class="page-link"
+        href="{{ url_for('main.consultas',
+                page=page-1,
+                proceso=request.args.get('proceso'),
+                periodo=request.args.get('periodo'),
+                estado=request.args.get('estado'),
+                ambiente=request.args.get('ambiente'),
+                responsable=request.args.get('responsable')
+        ) }}">
+    ←
+</a>
+    {% endif %}
+
+    <span class="page-info">pág. {{ page }}</span>
+
+    {% if (page * per_page) < total %}
+        <a class="page-link"
+        href="{{ url_for('main.consultas',
+                page=page+1,
+                proceso=request.args.get('proceso'),
+                periodo=request.args.get('periodo'),
+                estado=request.args.get('estado'),
+                ambiente=request.args.get('ambiente'),
+                responsable=request.args.get('responsable')
+        ) }}">
+            →
+        </a>
+    {% endif %}
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+function limpiarFiltros() {
+    const form = document.querySelector(".filters");
+    form.reset();
+    window.location.href = "{{ url_for('main.consultas') }}";
+}
+
+function mostrarError(mensaje) {
+    document.getElementById("errorMensaje").innerText = mensaje;
+    document.getElementById("errorModal").style.display = "flex";
+}
+
+function cerrarModal() {
+    document.getElementById("errorModal").style.display = "none";
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById("errorModal");
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+};
+
+</script>
+
+<!-- MODAL ERROR -->
+<div id="errorModal" class="modal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2>⚠ Detalle del Error</h2>
+
+            <span class="close" onclick="cerrarModal()">
+                &times;
+            </span>
+
+        </div>
+
+        <div class="modal-body">
+            <p id="errorMensaje"></p>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

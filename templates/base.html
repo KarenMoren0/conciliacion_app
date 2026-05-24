@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>{% block title %}App{% endblock %}</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <i class="fa-solid fa-chart-column"></i>
+            <span>Monitor de procesos contables</span>
+        </div>
+
+        <ul>
+
+            <li>
+                <a href="{{ url_for('main.dashboard') }}">
+                    <i class="fa-solid fa-gauge"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('main.procesos') }}">
+                    <i class="fa-solid fa-gears"></i>
+                    <span>Estado de Procesos</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('main.estado_fuentes') }}">
+                    <i class="fa-solid fa-database"></i>
+                    <span>Estado de Fuentes</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('main.consultas') }}">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i>
+                    <span>Consultas</span>
+                </a>
+            </li>
+
+            {% if current_user.is_authenticated and current_user.rol_usuario == 'admin' %}
+            <li>
+                <a href="{{ url_for('main.usuarios') }}">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Usuarios</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('main.sesiones') }}">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Sesiones</span>
+                </a>
+            </li>
+
+            {% endif %}
+
+        </ul>
+
+        <div class="divider"></div>
+
+        <div class="logout">
+            <a href="{{ url_for('login.logout') }}">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Cerrar sesión</span>
+            </a>
+        </div>
+
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- ACCIONES -->
+        <div class="actions">
+            {% block actions %}{% endblock %}
+        </div>
+
+        <!-- CONTENIDO -->
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+
+    </div>
+
+</div>
+
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

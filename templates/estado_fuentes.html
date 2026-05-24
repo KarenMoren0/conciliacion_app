@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Estado de Fuentes{% endblock %}
+
+{% block content %}
+
+<div class="header">
+    <h2>Estado de Fuentes de Datos</h2>
+    <p>Monitoreo de disponibilidad de fuentes</p>
+</div>
+
+<!-- CARDS RESUMEN -->
+<div class="cards">
+    <div class="card card-blue">
+        <p class="card-title">ESTADO GLOBAL</p>
+        <h3>
+            {% if pendientes == 0 %}
+                Sincronizado
+            {% else %}
+                Con incidencias
+            {% endif %}
+        </h3>
+    </div>
+
+    <div class="card card-light">
+        <p class="card-title">FUENTES LISTAS</p>
+        <h3>{{ listas }} / {{ total }}</h3>
+    </div>
+
+    <div class="card card-red">
+        <p class="card-title">FUENTES PENDIENTES</p>
+        <h3>{{ pendientes }}</h3>
+    </div>
+</div>
+
+<!-- FILTRO POR NOMBRE DE FUENTE -->
+<div class="table-section">
+    <div class="table-header">
+        <h3>Detalle de Fuentes</h3>
+
+        <div class="actions">
+            <!-- Filtro por nombre de fuente -->
+           <form method="GET" class="filters">
+
+    <select name="q" onchange="this.form.submit()">
+
+        <option value="">Todas las fuentes</option>
+
+        {% for nombre in nombres_fuentes %}
+            <option value="{{ nombre }}"
+                {% if request.args.get('q') == nombre %}selected{% endif %}>
+                {{ nombre }}
+            </option>
+        {% endfor %}
+
+    </select>
+
+</form>
+        </div>
+    </div>
+
+    <!-- TABLA -->
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre de Fuente</th>
+                <th>Estado</th>
+                <th>Última Actualización</th>
+                <th>Cantidad de Datos</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for f in fuentes %}
+            <tr>
+                <td><strong>{{ f.nombre }}</strong></td>
+
+                <td>
+                    {% if f.estado == "Lista" %}
+                        <span class="status ok">● Lista</span>
+                    {% else %}
+                        <span class="status bad">● No Lista</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if f.fecha %}
+                        {{ f.fecha }}
+                    {% else %}
+                        Sin fecha
+                    {% endif %}
+                </td>
+
+                <td>{{ f.cantidad }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- FOOTER TABLA -->
+<div class="table-footer">
+
+    <span>
+        Mostrando {{ fuentes|length }} de {{ total }} fuentes
+    </span>
+
+    <div class="pagination">
+
+        {% if page > 1 %}
+            <a class="page-link"
+               href="{{ url_for('main.estado_fuentes', page=page-1, q=request.args.get('q')) }}">
+                ←
+            </a>
+        {% endif %}
+
+        <span class="page-info">
+            Página {{ page }}
+        </span>
+
+        {% if total > page * per_page %}
+            <a class="page-link"
+               href="{{ url_for('main.estado_fuentes', page=page+1, q=request.args.get('q')) }}">
+                →
+            </a>
+        {% endif %}
+
+    </div>
+
+</div>
+</div>
+
+{% endblock %}

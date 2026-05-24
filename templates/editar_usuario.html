@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Editar Usuario{% endblock %}
+
+{% block content %}
+
+<div class="edit-container">
+
+    <h1>Editar Usuario</h1>
+
+    <form method="POST" class="edit-form">
+
+        <label>Nombre</label>
+        <input type="text" name="nombre" value="{{ usuario[1] }}">
+
+        <label>Correo</label>
+        <input type="email" name="correo" value="{{ usuario[2] }}">
+
+        <label>Rol</label>
+        <select name="rol">
+            <option value="admin" {% if usuario[3]=='admin' %}selected{% endif %}>Admin</option>
+            <option value="usuario" {% if usuario[3]=='usuario' %}selected{% endif %}>Usuario</option>
+        </select>
+
+        <label>Estado</label>
+        <select name="estado">
+            <option value="activo" {% if usuario[4]=='activo' %}selected{% endif %}>Activo</option>
+            <option value="inactivo" {% if usuario[4]=='inactivo' %}selected{% endif %}>Inactivo</option>
+        </select>
+
+        <button type="submit"> Guardar cambios</button>
+
+    </form>
+
+</div>
+
+{% endblock %}

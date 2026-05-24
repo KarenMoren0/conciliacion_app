@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block title %}Usuarios{% endblock %}
+
+{% block content %}
+
+<!-- HEADER -->
+<div class="header-procesos">
+
+    <h1>Usuarios</h1>
+
+    <form method="GET" action="/usuarios" class="search-box">
+
+    <div class="search-wrapper">
+
+        <input type="text"
+               name="busqueda"
+               value="{{ busqueda }}"
+               placeholder="Buscar usuario">
+
+        {% if busqueda %}
+        <a href="/usuarios" class="clear-btn">✕</a>
+        {% endif %}
+
+    </div>
+
+</form>
+
+</div>
+
+<!-- CARDS -->
+<div class="cards">
+
+    <div class="card total">
+        <span>TOTAL</span>
+        <h2>{{ cards.total }}</h2>
+    </div>
+
+    <div class="card success">
+        <span>ACTIVOS</span>
+        <h2>{{ cards.activos }}</h2>
+    </div>
+
+    <div class="card error">
+        <span>INACTIVOS</span>
+        <h2>{{ cards.inactivos }}</h2>
+    </div>
+
+</div>
+
+<!-- TABLA -->
+<div class="box">
+
+<table class="tabla-procesos">
+
+    <thead>
+        <tr>
+            <th>NOMBRE</th>
+            <th>EMAIL</th>
+            <th>ROL</th>
+            <th>ESTADO</th>
+            <th>CREADO</th>
+            <th>ACCIONES</th>
+        </tr>
+    </thead>
+
+<tbody>
+    {% for u in usuarios %}
+    <tr>
+        <td><strong>{{ u[1] }}</strong></td>
+        <td>{{ u[2] }}</td>
+        <td>
+
+    <span id="texto-rol-{{ u[0] }}">
+        {{ u[3] }}
+    </span>
+
+    <form method="POST"
+          action="/usuarios/rol/{{ u[0] }}"
+          id="form-rol-{{ u[0] }}"
+          style="display:none;">
+
+        <select name="rol"
+                onchange="this.form.submit()"
+                class="rol-select">
+
+            <option value="admin"
+                {% if u[3]=='admin' %}selected{% endif %}>
+                Admin
+            </option>
+
+            <option value="usuario"
+                {% if u[3]=='usuario' %}selected{% endif %}>
+                Usuario
+            </option>
+
+        </select>
+
+    </form>
+
+</td>
+
+        <td>
+
+    <!-- TEXTO ESTADO -->
+    <span id="texto-estado-{{ u[0] }}">
+        {% if u[5] == 'activo' %}
+            Activo
+        {% else %}
+            Inactivo
+        {% endif %}
+    </span>
+
+    <!-- FORM OCULTO -->
+    <form method="POST"
+          action="/usuarios/estado/{{ u[0] }}"
+          id="form-estado-{{ u[0] }}"
+          style="display:none;">
+
+        <select name="estado"
+                onchange="this.form.submit()"
+                class="rol-select">
+
+            <option value="activo"
+                {% if u[5]=='activo' %}selected{% endif %}>
+                Activo
+            </option>
+
+            <option value="inactivo"
+                {% if u[5]!='activo' %}selected{% endif %}>
+                Inactivo
+            </option>
+
+        </select>
+
+    </form>
+
+</td>
+
+        <td>{{ u[4] }}</td>
+
+       <td>
+
+    <div class="actions">
+
+        <!-- LAPIZ -->
+    <button type="button"
+            class="icon-btn"
+            onclick="window.location.href='{{ url_for('main.editar_usuario', id=u[0]) }}'">
+        ✏️
+    </button>
+
+        <!-- ELIMINAR -->
+        <form method="POST"
+        action="/usuarios/eliminar/{{ u[0] }}"
+        onsubmit="return confirmarEliminar()">
+
+        <button type="button"
+        class="icon-btn delete"
+        onclick="abrirModal({{ u[0] }})">
+
+            🗑️
+
+        </button>
+
+    </form>
+
+    </div>
+
+</td>
+
+
+    </tr>
+    {% endfor %}
+</tbody>
+
+</table>
+<!-- MODAL -->
+<div id="modalEliminar" class="modal">
+
+    <div class="modal-content">
+
+        <h3>Eliminar usuario</h3>
+
+        <p>¿Estás seguro de eliminar este usuario?</p>
+
+        <div class="modal-actions">
+
+            <button class="btn-cancel"
+                    onclick="cerrarModal()">
+
+                Cancelar
+
+            </button>
+
+            <form id="formEliminar" method="POST" onsubmit="return confirmarEliminar()">
+            <button type="submit" class="btn-delete">
+                Eliminar
+            </button>
+        </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+<script>
+let usuarioAEliminar = null;
+
+function abrirModal(id) {
+    usuarioAEliminar = id;
+    document.getElementById("modalEliminar").style.display = "block";
+}
+
+function cerrarModal() {
+    document.getElementById("modalEliminar").style.display = "none";
+    usuarioAEliminar = null;
+}
+
+function confirmarEliminar() {
+    if (!usuarioAEliminar) return false;
+
+    const form = document.getElementById("formEliminar");
+
+    form.action = "/usuarios/eliminar/" + usuarioAEliminar;
+
+    cerrarModal(); // cerrar después de asignar acción
+
+    return true; // permite el submit
+}
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Recuperar Contraseña</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+
+<body>
+
+            <div class="toast-container">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="toast-recovery {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+    </div>
+        
+    <div class="login-container">
+        <div class="login-box">
+
+            <img src="{{ url_for('static', filename='img/logo.png') }}" class="logo">
+
+            <h2>Recuperar contraseña</h2>
+            <h1>Ingrese su correo para restablecerla</h1>
+
+
+            <form method="POST" action="/recuperar">
+                <label for="correo">Correo:</label>
+                <input type="email" id="correo" name="correo" placeholder="ejemplo@davivienda.com" required>
+
+                <button type="submit">Enviar enlace</button>
+            </form>
+
+            <p><a href="/login">🡨 Volver al inicio de sesión</a></p>
+
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+</body>
+</html>

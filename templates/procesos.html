@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% block title %}Procesos{% endblock %}
+
+{% block content %}
+
+<!-- HEADER -->
+<div class="header-procesos">
+    <h1>Procesos</h1>
+
+    <form method="GET" action="/procesos" class="search-form">
+
+    <div class="search-wrapper">
+
+        <input 
+            type="text" 
+            name="busqueda" 
+            placeholder="Buscar proceso (ej: C01)"
+            value="{{ request.args.get('busqueda', '') }}"
+        >
+
+        {% if request.args.get('busqueda') %}
+        <a href="/procesos" class="clear-btn">✕</a>
+        {% endif %}
+
+    </div>
+
+</form>
+
+</div>
+
+<!-- CARDS -->
+<div class="cards">
+
+    <div class="card total">
+        <span>TOTAL PROCESOS</span>
+        <h2>{{ cards.total }}</h2>
+    </div>
+
+    <div class="card success">
+        <span>EXITOSOS</span>
+        <h2>{{ cards.ok }}</h2>
+    </div>
+
+    <div class="card error">
+        <span>CON ERROR</span>
+        <h2>{{ cards.error }}</h2>
+    </div>
+
+    <div class="card warning">
+        <span>CON DIFERENCIAS</span>
+        <h2>{{ cards.diferencias }}</h2>
+    </div>
+
+</div>
+
+<!-- ACTIONS -->
+<div class="procesos-actions">
+    <div class="left">
+        <button type="button" class="btn" onclick="window.location='/procesos'">
+        🧹 Limpiar
+        </button>
+
+        <button type="button" class="btn" onclick="window.location='/procesos/exportar?busqueda={{ request.args.get('busqueda','') }}'">
+            ⬇ Exportar
+        </button>
+    </div>
+
+</div>
+
+<!-- TABLA -->
+<div class="box">
+
+<table class="tabla-procesos">
+
+    <thead>
+        <tr>
+            <th>CÓDIGO</th>
+            <th>PERIODO</th>
+            <th>ÚLTIMA EJECUCIÓN</th>
+            <th>SALDO PROTOTIPADO</th>
+            <th>SALDO PRODUCCIÓN</th>
+            <th>DIFERENCIA</th>
+            <th>ALERTAS</th>
+            <th>ESTADO EJECUCION PRODUCCION</th>
+            <th>ESTADO EJECUCION PROTOTIPADO</th>
+        </tr>
+    </thead>
+
+<tbody>
+{% for p in procesos %}
+<tr>
+
+    <!-- CÓDIGO -->
+    <td>
+        <strong>{{ p.codigo }}</strong><br>
+        <span class="sub">{{ p.nombre }}</span>
+    </td>
+
+    <!-- PERIODO -->
+    <td>
+        {{ p.periodo }}
+    </td>
+
+    <!-- ÚLTIMA EJECUCIÓN -->
+    <td>
+        {{ p.ultima_ejecucion }}
+    </td>
+
+    <!-- SALDO PROTOTIPADO -->
+    <td>
+        ${{ "{:,.0f}".format(p.registros) }}
+    </td>
+
+    <!-- SALDO PRODUCCIÓN -->
+    <td class="{% if p.diferencias != 0 %}danger{% endif %}">
+        ${{ "{:,.0f}".format(p.registros - p.diferencias) }}
+    </td>
+
+    <!-- DIFERENCIA -->
+    <td class="{% if p.diferencias != 0 %}danger{% endif %}">
+        ${{ "{:,.0f}".format(p.diferencias) }}
+    </td>
+
+    <!-- ALERTAS -->
+    <td>
+        {% if p.diferencias > 0 %}
+            <span class="danger">⚠</span>
+        {% endif %}
+    </td>
+
+    <!-- ESTADO PRODUCCION -->
+    <td>
+        {% if p.estado_produccion == 'OK' %}
+            <span class="status ok">COMPLETADO</span>
+
+        {% elif p.estado_produccion == 'ERROR' %}
+        <span 
+            class="status bad"
+            onclick="mostrarError(`{{ p.mensaje_error_produccion}}`)"
+            style="cursor:pointer;"
+        >
+            ERROR
+        </span>
+
+        {% else %}
+            <span class="status warning">PENDIENTE</span>
+        {% endif %}
+    </td>
+
+    <!-- ESTADO PROTOTIPADO -->
+    <td>
+        {% if p.estado_prototipado == 'OK' %}
+            <span class="status ok">COMPLETADO</span>
+
+        {% elif p.estado_prototipado == 'ERROR' %}
+        <span 
+            class="status bad"
+            onclick="mostrarError(`{{ p.mensaje_error_prototipado }}`)"
+            style="cursor:pointer;"
+        >
+            ERROR
+        </span>
+
+        {% else %}
+            <span class="status warning">PENDIENTE</span>
+        {% endif %}
+    </td>
+
+</tr>
+{% endfor %}
+</tbody>
+
+</table>
+
+
+</div>
+
+<!-- MODAL ERROR -->
+<div id="errorModal" class="modal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2>⚠ Detalle del Error</h2>
+
+            <span class="close" onclick="cerrarModal()">
+                &times;
+            </span>
+
+        </div>
+
+        <div class="modal-body">
+            <p id="errorMensaje"></p>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function mostrarError(mensaje) {
+
+    document.getElementById("errorMensaje").innerText = mensaje;
+
+    document.getElementById("errorModal").style.display = "flex";
+}
+
+function cerrarModal() {
+
+    document.getElementById("errorModal").style.display = "none";
+}
+
+window.onclick = function(event) {
+
+    const modal = document.getElementById("errorModal");
+
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
+</script>
+
+{% endblock %}
