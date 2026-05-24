@@ -41,9 +41,9 @@ def ruta_login():
         conn = get_connection()
         cur = conn.cursor() 
         cur.execute(
-            "SELECT id_usuario, nombre, correo, password, estado FROM usuarios WHERE correo=%s",
-            (correo,)
-        )
+        "SELECT id_usuario, nombre, correo, password, estado, rol_usuario FROM usuarios WHERE correo=%s",
+        (correo,)
+        )   
         user = cur.fetchone()
         cur.close()
         
@@ -52,7 +52,7 @@ def ruta_login():
             print("PASSWORD BD:", user["password"])
             print("ESTADO BD:", user["estado"])
 
-        if not user:
+        if user is None:
             return render_template('login.html', mensaje="Usuario o contraseña incorrectos", correo=correo)
 
         if not check_password_hash(user["password"], password):
@@ -88,9 +88,6 @@ def ruta_login():
 
     return render_template('login.html')
 
-    return render_template('login.html', mensaje="Usuario o contraseña incorrectos", correo=correo)
-
-    return render_template('login.html')
 
 
 # ================= REGISTRO =================

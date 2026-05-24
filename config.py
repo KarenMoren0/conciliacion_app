@@ -22,5 +22,6 @@ def get_connection():
         database="railway",
         port=38672,
         cursorclass=pymysql.cursors.DictCursor,
-        connect_timeout=10
+        connect_timeout=10,
+        autocommit=True
     )
