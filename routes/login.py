@@ -113,6 +113,11 @@ def ruta_registro():
         )
         conn.commit()
         cur.close()
+        
+        print("USER:", user)
+        print("TYPE PASSWORD BD:", type(user["password"]))
+        print("PASSWORD BD:", repr(user["password"]))
+        print("PASSWORD INPUT:", repr(password))
 
         return redirect(url_for('login.ruta_login'))
 
