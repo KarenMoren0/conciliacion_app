@@ -1,10 +1,7 @@
+import pymysql
+
 class Config:
     SECRET_KEY = 'mi_clave_super_secreta_123'
-    # MYSQL
-    MYSQL_HOST = 'zephyr.proxy.rlwy.net'
-    MYSQL_USER = 'root'
-    MYSQL_PASSWORD = 'slCuNIXYQlVcCBKiIROFgkkNNfiYSuuG'
-    MYSQL_DB = 'railway'
 
     # MAIL
     MAIL_SERVER = 'smtp.gmail.com'
@@ -16,3 +13,13 @@ class Config:
 
     # BIGQUERY
     BQ_PROJECT = "monitor-migracion"
+
+def get_connection():
+    return pymysql.connect(
+        host="zephyr.proxy.rlwy.net",
+        user="root",
+        password="slCuNIXYQlVcCBKiIROFgkkNNfiYSuuG",
+        database="railway",
+        port=38672,
+        cursorclass=pymysql.cursors.DictCursor
+    )

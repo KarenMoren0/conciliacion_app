@@ -6,6 +6,7 @@ from flask_mail import Message
 from extensions import mail, login_manager
 from models.user import User
 from datetime import datetime
+from config import get_connection
 
 login = Blueprint('login', __name__)
 
@@ -15,7 +16,8 @@ def get_serializer():
 
 @login_manager.user_loader
 def load_user(user_id):
-    cur = current_app.mysql.connection.cursor()
+    conn = get_connection()
+    cur = conn.cursor()
     cur.execute("""
         SELECT id_usuario, nombre, correo, rol_usuario
         FROM usuarios
@@ -36,7 +38,8 @@ def ruta_login():
         correo = request.form['correo']
         password = request.form['password']
 
-        cur = current_app.mysql.connection.cursor()
+        conn = get_connection()
+        cur = conn.cursor() 
         cur.execute(
             "SELECT id_usuario, nombre, correo, password, estado FROM usuarios WHERE correo=%s",
             (correo,)
@@ -67,7 +70,8 @@ def ruta_login():
         usuario = User(user)
         login_user(usuario)
 
-        cur = current_app.mysql.connection.cursor()
+        conn = get_connection()
+        cur = conn.cursor()
         cur.execute("""
             INSERT INTO sesiones (id_usuario, fecha_inicio, ip_usuario, estado)
             VALUES (%s, %s, %s, %s)
@@ -77,7 +81,7 @@ def ruta_login():
             request.remote_addr,
             'activo'
         ))
-        current_app.mysql.connection.commit()
+        conn.commit()
         cur.close()
 
         return make_response(redirect(url_for('main.dashboard')))
@@ -97,7 +101,8 @@ def ruta_registro():
         correo = request.form['correo']
         password = generate_password_hash(request.form['password'])
 
-        cur = current_app.mysql.connection.cursor()
+        conn = get_connection()
+        cur = conn.cursor()
         cur.execute("SELECT * FROM usuarios WHERE correo = %s", (correo,))
         usuario_existente = cur.fetchone()
 
@@ -109,7 +114,7 @@ def ruta_registro():
             "INSERT INTO usuarios (nombre, correo, password) VALUES (%s, %s, %s)",
             (nombre, correo, password)
         )
-        current_app.mysql.connection.commit()
+        conn.commit()
         cur.close()
 
         return redirect(url_for('login.ruta_login'))
@@ -123,7 +128,8 @@ def ruta_recuperar():
     if request.method == 'POST':
         correo = request.form['correo']
 
-        cur = current_app.mysql.connection.cursor()
+        conn = get_connection()
+        cur = conn.cursor()
         cur.execute("SELECT correo FROM usuarios WHERE correo=%s", (correo,))
         user = cur.fetchone()
         cur.close()
@@ -165,7 +171,8 @@ def ruta_cambiar_password(token):
             return render_template("cambiar_password.html",
                                    mensaje="❌ Las contraseñas no coinciden")
 
-        cur = current_app.mysql.connection.cursor()
+        conn = get_connection()
+        cur = conn.cursor()
 
         cur.execute("""
             UPDATE usuarios 
@@ -173,7 +180,7 @@ def ruta_cambiar_password(token):
             WHERE id_usuario=%s
         """, (generate_password_hash(nueva_password), user_id))
 
-        current_app.mysql.connection.commit()
+        conn.commit()
 
         print("FILAS AFECTADAS:", cur.rowcount)  # 👈 debug clave
 
@@ -187,7 +194,8 @@ def ruta_cambiar_password(token):
 # ================= LOGOUT =================
 @login.route('/logout')
 def logout():
-    cur = current_app.mysql.connection.cursor()
+    conn = get_connection()
+    cur = conn.cursor()
     cur.execute("""
         UPDATE sesiones
         SET fecha_fin = %s,
@@ -206,7 +214,7 @@ def logout():
         'inactivo',
         current_user.id
     ))
-    current_app.mysql.connection.commit()
+    conn.commit()
     cur.close()
 
     logout_user()
