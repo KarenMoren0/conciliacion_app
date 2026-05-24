@@ -49,16 +49,16 @@ def ruta_login():
         
         print("USER COMPLETO:", user)
         if user:
-            print("PASSWORD BD:", user[3])
-            print("ESTADO BD:", user[4])
+            print("PASSWORD BD:", user["password"])
+            print("ESTADO BD:", user["estado"])
 
         if not user:
             return render_template('login.html', mensaje="Usuario o contraseña incorrectos", correo=correo)
 
-        if not check_password_hash(user[3], password):
+        if not check_password_hash(user["password"], password):
             return render_template('login.html', mensaje="Usuario o contraseña incorrectos", correo=correo)
 
-        estado = (user[4] or "").strip().lower()
+        estado = (user["estado"] or "").strip().lower()
 
         if estado != "activo":
             return render_template(
